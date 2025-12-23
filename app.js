@@ -1,23 +1,5 @@
 /***********************
- *  NAVIGATION JOUR ↔ JOUR
- ***********************/
-function shiftDay(offset) {
-  const d = new Date(currentDay);
-  d.setDate(d.getDate() + offset);
-  currentDay = d.toISOString().split("T")[0];
-
-  dayPicker.value = currentDay;
-  dateTitle.innerText = currentDay;
-
-  loadDay(currentDay);
-}
-
-document.getElementById("prevDay").onclick = () => shiftDay(-1);
-document.getElementById("nextDay").onclick = () => shiftDay(1);
-
-
-/***********************
- *  INITIALISATION
+ * INITIALISATION
  ***********************/
 const dayPicker = document.getElementById("dayPicker");
 const dateTitle = document.getElementById("date");
@@ -33,8 +15,14 @@ const a_decimal = document.getElementById("a_decimal");
 const morningRow = document.getElementById("morning");
 const afternoonRow = document.getElementById("afternoon");
 
+const weekView = document.getElementById("weekView");
+
+const prevDayBtn = document.getElementById("prevDay");
+const nextDayBtn = document.getElementById("nextDay");
+const copyBtn = document.getElementById("copy");
+
 /***********************
- *  DATE COURANTE
+ * DATE COURANTE
  ***********************/
 function getToday() {
   return new Date().toISOString().split("T")[0];
@@ -45,7 +33,7 @@ dayPicker.value = currentDay;
 dateTitle.innerText = currentDay;
 
 /***********************
- *  OUTILS
+ * OUTILS
  ***********************/
 function timeToDecimal(time) {
   if (!time) return "";
@@ -54,7 +42,7 @@ function timeToDecimal(time) {
 }
 
 /***********************
- *  SAUVEGARDE / CHARGEMENT
+ * SAUVEGARDE / CHARGEMENT
  ***********************/
 function saveDay() {
   const data = {
@@ -68,17 +56,16 @@ function saveDay() {
 
 function loadDay(date) {
   const data = JSON.parse(localStorage.getItem(date));
-
   m_start.value = data?.m_start || "";
   m_end.value   = data?.m_end   || "";
   a_start.value = data?.a_start || "";
   a_end.value   = data?.a_end   || "";
-
   updateAll();
+  updateWeekView();
 }
 
 /***********************
- *  MISE À JOUR AFFICHAGE
+ * MISE À JOUR AFFICHAGE
  ***********************/
 function updateRow(startInput, endInput, decimalSpan, row) {
   if (startInput.value && endInput.value) {
@@ -89,7 +76,6 @@ function updateRow(startInput, endInput, decimalSpan, row) {
     decimalSpan.innerText = "";
     row.className = "row incomplete";
   }
-
   saveDay();
 }
 
@@ -99,7 +85,72 @@ function updateAll() {
 }
 
 /***********************
- *  ÉCOUTEURS
+ * AUTO-FOCUS
+ ***********************/
+m_start.onchange = () => m_end.focus();
+m_end.onchange   = () => a_start.focus();
+a_start.onchange = () => a_end.focus();
+
+/***********************
+ * NAVIGATION JOUR ↔ JOUR
+ ***********************/
+function shiftDay(offset) {
+  const d = new Date(currentDay);
+  d.setDate(d.getDate() + offset);
+  currentDay = d.toISOString().split("T")[0];
+  dayPicker.value = currentDay;
+  dateTitle.innerText = currentDay;
+  loadDay(currentDay);
+}
+
+prevDayBtn.addEventListener("click", () => shiftDay(-1));
+nextDayBtn.addEventListener("click", () => shiftDay(1));
+
+/***********************
+ * DUPLICATION JOUR PRÉCÉDENT
+ ***********************/
+copyBtn.addEventListener("click", () => {
+  const d = new Date(currentDay);
+  d.setDate(d.getDate() - 1);
+  const previousDay = d.toISOString().split("T")[0];
+  loadDay(previousDay);
+  saveDay();
+});
+
+/***********************
+ * SÉLECTEUR DE JOUR
+ ***********************/
+dayPicker.addEventListener("change", () => {
+  currentDay = dayPicker.value;
+  dateTitle.innerText = currentDay;
+  loadDay(currentDay);
+});
+
+/***********************
+ * VUE SEMAINE
+ ***********************/
+function updateWeekView() {
+  weekView.innerHTML = "";
+  const baseDate = new Date(currentDay);
+  baseDate.setDate(baseDate.getDate() - baseDate.getDay()); // début de semaine dimanche
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(baseDate);
+    d.setDate(baseDate.getDate() + i);
+    const dateStr = d.toISOString().split("T")[0];
+    const data = JSON.parse(localStorage.getItem(dateStr)) || {};
+    const complete =
+      data.m_start && data.m_end && data.a_start && data.a_end
+        ? "✅"
+        : "❌";
+    const displayDate = dateStr.slice(5); // MM-DD
+    const div = document.createElement("div");
+    div.innerText = `${displayDate} ${complete}`;
+    weekView.appendChild(div);
+  }
+}
+
+/***********************
+ * ÉCOUTEURS SUR CHAMPS
  ***********************/
 [m_start, m_end].forEach(el =>
   el.addEventListener("change", () =>
@@ -114,33 +165,6 @@ function updateAll() {
 );
 
 /***********************
- *  CHANGEMENT DE JOUR
- ***********************/
-dayPicker.addEventListener("change", () => {
-  currentDay = dayPicker.value;
-  dateTitle.innerText = currentDay;
-  loadDay(currentDay);
-});
-
-/***********************
- *  AUTO-FOCUS (UX)
- ***********************/
-m_start.onchange = () => m_end.focus();
-m_end.onchange   = () => a_start.focus();
-a_start.onchange = () => a_end.focus();
-
-/***********************
- *  DUPLICATION JOUR PRÉCÉDENT
- ***********************/
-document.getElementById("copy").onclick = () => {
-  const d = new Date(currentDay);
-  d.setDate(d.getDate() - 1);
-  const previousDay = d.toISOString().split("T")[0];
-  loadDay(previousDay);
-  saveDay();
-};
-
-/***********************
- *  CHARGEMENT INITIAL
+ * CHARGEMENT INITIAL
  ***********************/
 loadDay(currentDay);
