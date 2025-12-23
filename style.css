@@ -1,0 +1,51 @@
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: 16px;
+  background: #fff;
+  color: #000;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #121212;
+    color: #fff;
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.label {
+  width: 90px;
+  font-weight: 600;
+}
+
+input[type="time"] {
+  font-size: 16px;
+}
+
+.decimal {
+  margin-left: auto;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.complete {
+  border-left: 4px solid green;
+  padding-left: 6px;
+}
+
+.incomplete {
+  border-left: 4px solid red;
+  padding-left: 6px;
+}
+
+button {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+}

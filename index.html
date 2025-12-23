@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Relevé d'heures</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h2 id="date"></h2>
+
+<div class="row" id="morning">
+  <span class="label">Matin</span>
+  <input type="time" id="m_start">
+  <span>→</span>
+  <input type="time" id="m_end">
+  <span class="decimal" id="m_decimal"></span>
+</div>
+
+<div class="row" id="afternoon">
+  <span class="label">Après-midi</span>
+  <input type="time" id="a_start">
+  <span>→</span>
+  <input type="time" id="a_end">
+  <span class="decimal" id="a_decimal"></span>
+</div>
+
+<button id="copy">↩ Copier jour précédent</button>
+<button id="export">⬇ Export CSV</button>
+
+<script src="app.js"></script>
+</body>
+</html>
