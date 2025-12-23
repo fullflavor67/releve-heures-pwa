@@ -16,7 +16,6 @@ const morningRow = document.getElementById("morning");
 const afternoonRow = document.getElementById("afternoon");
 
 const weekView = document.getElementById("weekView");
-const copyBtn = document.getElementById("copy");
 
 /***********************
  * DATE COURANTE
@@ -73,40 +72,16 @@ function updateRow(startInput, endInput, decimalSpan, row) {
     decimalSpan.innerText = "";
     row.className = "row incomplete";
   }
-  saveDay();
+  // Sauvegarde automatique seulement après validation (blur)
 }
 
+/***********************
+ * MISE À JOUR TOTALE
+ ***********************/
 function updateAll() {
   updateRow(m_start, m_end, m_decimal, morningRow);
   updateRow(a_start, a_end, a_decimal, afternoonRow);
 }
-
-/***********************
- * AUTO-FOCUS
- ***********************/
-m_start.onchange = () => m_end.focus();
-m_end.onchange   = () => a_start.focus();
-a_start.onchange = () => a_end.focus();
-
-/***********************
- * DUPLICATION JOUR PRÉCÉDENT
- ***********************/
-copyBtn.addEventListener("click", () => {
-  const d = new Date(currentDay);
-  d.setDate(d.getDate() - 1);
-  const previousDay = d.toISOString().split("T")[0];
-  loadDay(previousDay);
-  saveDay();
-});
-
-/***********************
- * SÉLECTEUR DE JOUR
- ***********************/
-dayPicker.addEventListener("change", () => {
-  currentDay = dayPicker.value;
-  dateTitle.innerText = currentDay;
-  loadDay(currentDay);
-});
 
 /***********************
  * VUE SEMAINE
@@ -115,6 +90,7 @@ function updateWeekView() {
   weekView.innerHTML = "";
   const baseDate = new Date(currentDay);
   baseDate.setDate(baseDate.getDate() - baseDate.getDay()); // début de semaine dimanche
+
   for (let i = 0; i < 7; i++) {
     const d = new Date(baseDate);
     d.setDate(baseDate.getDate() + i);
@@ -139,19 +115,29 @@ function updateWeekView() {
 }
 
 /***********************
- * ÉCOUTEURS SUR CHAMPS
+ * SÉLECTEUR DE JOUR
  ***********************/
-[m_start, m_end].forEach(el =>
-  el.addEventListener("change", () =>
-    updateRow(m_start, m_end, m_decimal, morningRow)
-  )
-);
+dayPicker.addEventListener("change", () => {
+  currentDay = dayPicker.value;
+  dateTitle.innerText = currentDay;
+  loadDay(currentDay);
+});
 
-[a_start, a_end].forEach(el =>
-  el.addEventListener("change", () =>
-    updateRow(a_start, a_end, a_decimal, afternoonRow)
-  )
-);
+/***********************
+ * VALIDATION DES HEURES
+ * Sauvegarde uniquement après "blur" ou "Enter"
+ ***********************/
+[m_start, m_end, a_start, a_end].forEach(input => {
+  input.addEventListener("blur", saveDay);
+  input.addEventListener("keypress", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      saveDay();
+      input.blur(); // quitte le champ
+    }
+  });
+  input.addEventListener("input", updateAll); // mise à jour immédiate affichage decimal
+});
 
 /***********************
  * CHARGEMENT INITIAL
