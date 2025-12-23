@@ -49,3 +49,14 @@ button {
   width: 100%;
   padding: 8px;
 }
+
+.nav-days {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.nav-days button {
+  flex: 1;
+}
+

@@ -1,28 +1,61 @@
-const today = new Date().toISOString().split("T")[0];
-document.getElementById("date").innerText = today;
+/***********************
+ *  NAVIGATION JOUR ↔ JOUR
+ ***********************/
+function shiftDay(offset) {
+  const d = new Date(currentDay);
+  d.setDate(d.getDate() + offset);
+  currentDay = d.toISOString().split("T")[0];
 
+  dayPicker.value = currentDay;
+  dateTitle.innerText = currentDay;
+
+  loadDay(currentDay);
+}
+
+document.getElementById("prevDay").onclick = () => shiftDay(-1);
+document.getElementById("nextDay").onclick = () => shiftDay(1);
+
+
+/***********************
+ *  INITIALISATION
+ ***********************/
+const dayPicker = document.getElementById("dayPicker");
+const dateTitle = document.getElementById("date");
+
+const m_start = document.getElementById("m_start");
+const m_end = document.getElementById("m_end");
+const a_start = document.getElementById("a_start");
+const a_end = document.getElementById("a_end");
+
+const m_decimal = document.getElementById("m_decimal");
+const a_decimal = document.getElementById("a_decimal");
+
+const morningRow = document.getElementById("morning");
+const afternoonRow = document.getElementById("afternoon");
+
+/***********************
+ *  DATE COURANTE
+ ***********************/
+function getToday() {
+  return new Date().toISOString().split("T")[0];
+}
+
+let currentDay = getToday();
+dayPicker.value = currentDay;
+dateTitle.innerText = currentDay;
+
+/***********************
+ *  OUTILS
+ ***********************/
 function timeToDecimal(time) {
   if (!time) return "";
   const [h, m] = time.split(":").map(Number);
   return (h + m / 60).toFixed(2);
 }
 
-function updateRow(startId, endId, decimalId, rowId) {
-  const start = document.getElementById(startId).value;
-  const end = document.getElementById(endId).value;
-  const row = document.getElementById(rowId);
-
-  if (start && end) {
-    document.getElementById(decimalId).innerText =
-      `(${timeToDecimal(start)} – ${timeToDecimal(end)})`;
-    row.className = "row complete";
-  } else {
-    row.className = "row incomplete";
-  }
-
-  saveDay();
-}
-
+/***********************
+ *  SAUVEGARDE / CHARGEMENT
+ ***********************/
 function saveDay() {
   const data = {
     m_start: m_start.value,
@@ -30,30 +63,84 @@ function saveDay() {
     a_start: a_start.value,
     a_end: a_end.value
   };
-  localStorage.setItem(today, JSON.stringify(data));
+  localStorage.setItem(currentDay, JSON.stringify(data));
 }
 
 function loadDay(date) {
   const data = JSON.parse(localStorage.getItem(date));
-  if (!data) return;
-  Object.keys(data).forEach(k => document.getElementById(k).value = data[k]);
+
+  m_start.value = data?.m_start || "";
+  m_end.value   = data?.m_end   || "";
+  a_start.value = data?.a_start || "";
+  a_end.value   = data?.a_end   || "";
+
+  updateAll();
 }
 
-loadDay(today);
+/***********************
+ *  MISE À JOUR AFFICHAGE
+ ***********************/
+function updateRow(startInput, endInput, decimalSpan, row) {
+  if (startInput.value && endInput.value) {
+    decimalSpan.innerText =
+      `(${timeToDecimal(startInput.value)} – ${timeToDecimal(endInput.value)})`;
+    row.className = "row complete";
+  } else {
+    decimalSpan.innerText = "";
+    row.className = "row incomplete";
+  }
 
-["m_start", "m_end"].forEach(id =>
-  document.getElementById(id).addEventListener("change", () =>
-    updateRow("m_start", "m_end", "m_decimal", "morning")
+  saveDay();
+}
+
+function updateAll() {
+  updateRow(m_start, m_end, m_decimal, morningRow);
+  updateRow(a_start, a_end, a_decimal, afternoonRow);
+}
+
+/***********************
+ *  ÉCOUTEURS
+ ***********************/
+[m_start, m_end].forEach(el =>
+  el.addEventListener("change", () =>
+    updateRow(m_start, m_end, m_decimal, morningRow)
   )
 );
 
-["a_start", "a_end"].forEach(id =>
-  document.getElementById(id).addEventListener("change", () =>
-    updateRow("a_start", "a_end", "a_decimal", "afternoon")
+[a_start, a_end].forEach(el =>
+  el.addEventListener("change", () =>
+    updateRow(a_start, a_end, a_decimal, afternoonRow)
   )
 );
 
+/***********************
+ *  CHANGEMENT DE JOUR
+ ***********************/
+dayPicker.addEventListener("change", () => {
+  currentDay = dayPicker.value;
+  dateTitle.innerText = currentDay;
+  loadDay(currentDay);
+});
+
+/***********************
+ *  AUTO-FOCUS (UX)
+ ***********************/
+m_start.onchange = () => m_end.focus();
+m_end.onchange   = () => a_start.focus();
+a_start.onchange = () => a_end.focus();
+
+/***********************
+ *  DUPLICATION JOUR PRÉCÉDENT
+ ***********************/
 document.getElementById("copy").onclick = () => {
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-  loadDay(yesterday);
+  const d = new Date(currentDay);
+  d.setDate(d.getDate() - 1);
+  const previousDay = d.toISOString().split("T")[0];
+  loadDay(previousDay);
+  saveDay();
 };
+
+/***********************
+ *  CHARGEMENT INITIAL
+ ***********************/
+loadDay(currentDay);
