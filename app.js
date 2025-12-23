@@ -72,12 +72,8 @@ function updateRow(startInput, endInput, decimalSpan, row) {
     decimalSpan.innerText = "";
     row.className = "row incomplete";
   }
-  // Sauvegarde automatique seulement après validation (blur)
 }
 
-/***********************
- * MISE À JOUR TOTALE
- ***********************/
 function updateAll() {
   updateRow(m_start, m_end, m_decimal, morningRow);
   updateRow(a_start, a_end, a_decimal, afternoonRow);
@@ -128,7 +124,7 @@ dayPicker.addEventListener("change", () => {
  * Sauvegarde uniquement après "blur" ou "Enter"
  ***********************/
 [m_start, m_end, a_start, a_end].forEach(input => {
-  input.addEventListener("blur", saveDay);
+  input.addEventListener("blur", saveDay); // sauvegarde après quitter le champ
   input.addEventListener("keypress", e => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -136,7 +132,7 @@ dayPicker.addEventListener("change", () => {
       input.blur(); // quitte le champ
     }
   });
-  input.addEventListener("input", updateAll); // mise à jour immédiate affichage decimal
+  input.addEventListener("input", updateAll); // mise à jour affichage décimal
 });
 
 /***********************
