@@ -5,32 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Relevé d'heures</title>
 <link rel="stylesheet" href="style.css">
-<style>
-.roulette {
-  width: 80px;
-  height: 150px;
-  overflow-y: scroll;
-  border: 1px solid #ccc;
-  text-align: center;
-  font-size: 18px;
-  margin: 2px;
-  display: inline-block;
-  vertical-align: top;
-}
-.roulette div {
-  height: 30px;
-  line-height: 30px;
-}
-.row {
-  margin-bottom: 10px;
-}
-.complete {
-  background-color: #d4ffd4;
-}
-.incomplete {
-  background-color: #ffd4d4;
-}
-</style>
 </head>
 <body>
 
@@ -38,21 +12,34 @@
 <label for="dayPicker">Choisir le jour :</label>
 <input type="date" id="dayPicker">
 
-<div id="morning" class="row">
-  <strong>Matin:</strong>
-  <div class="roulette" id="m_start"></div>
-  <div class="roulette" id="m_end"></div>
-  <span id="m_decimal"></span>
-  <button onclick="validateRow('morning')">Valider</button>
-</div>
-
-<div id="afternoon" class="row">
-  <strong>Après-midi:</strong>
-  <div class="roulette" id="a_start"></div>
-  <div class="roulette" id="a_end"></div>
-  <span id="a_decimal"></span>
-  <button onclick="validateRow('afternoon')">Valider</button>
-</div>
+<table>
+  <tr id="morning" class="row">
+    <td>Matin</td>
+    <td>
+      <select id="m_start_h"></select> :
+      <select id="m_start_m"></select>
+    </td>
+    <td>
+      <select id="m_end_h"></select> :
+      <select id="m_end_m"></select>
+    </td>
+    <td><span id="m_decimal"></span></td>
+    <td><button onclick="validateRow('morning')">Valider</button></td>
+  </tr>
+  <tr id="afternoon" class="row">
+    <td>Après-midi</td>
+    <td>
+      <select id="a_start_h"></select> :
+      <select id="a_start_m"></select>
+    </td>
+    <td>
+      <select id="a_end_h"></select> :
+      <select id="a_end_m"></select>
+    </td>
+    <td><span id="a_decimal"></span></td>
+    <td><button onclick="validateRow('afternoon')">Valider</button></td>
+  </tr>
+</table>
 
 <h3>Vue semaine</h3>
 <div id="weekView"></div>
