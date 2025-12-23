@@ -120,13 +120,20 @@ function updateWeekView() {
     d.setDate(baseDate.getDate() + i);
     const dateStr = d.toISOString().split("T")[0];
     const data = JSON.parse(localStorage.getItem(dateStr)) || {};
+
+    const mStart = data.m_start || "--:--";
+    const mEnd   = data.m_end   || "--:--";
+    const aStart = data.a_start || "--:--";
+    const aEnd   = data.a_end   || "--:--";
+
     const complete =
       data.m_start && data.m_end && data.a_start && data.a_end
         ? "✅"
         : "❌";
+
     const displayDate = dateStr.slice(5); // MM-DD
     const div = document.createElement("div");
-    div.innerText = `${displayDate} ${complete}`;
+    div.innerText = `${displayDate} ${complete} | Matin: ${mStart}→${mEnd} | Après-midi: ${aStart}→${aEnd}`;
     weekView.appendChild(div);
   }
 }
