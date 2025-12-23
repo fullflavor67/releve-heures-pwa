@@ -16,9 +16,6 @@ const morningRow = document.getElementById("morning");
 const afternoonRow = document.getElementById("afternoon");
 
 const weekView = document.getElementById("weekView");
-
-const prevDayBtn = document.getElementById("prevDay");
-const nextDayBtn = document.getElementById("nextDay");
 const copyBtn = document.getElementById("copy");
 
 /***********************
@@ -90,21 +87,6 @@ function updateAll() {
 m_start.onchange = () => m_end.focus();
 m_end.onchange   = () => a_start.focus();
 a_start.onchange = () => a_end.focus();
-
-/***********************
- * NAVIGATION JOUR ↔ JOUR
- ***********************/
-function shiftDay(offset) {
-  const d = new Date(currentDay);
-  d.setDate(d.getDate() + offset);
-  currentDay = d.toISOString().split("T")[0];
-  dayPicker.value = currentDay;
-  dateTitle.innerText = currentDay;
-  loadDay(currentDay);
-}
-
-prevDayBtn.addEventListener("click", () => shiftDay(-1));
-nextDayBtn.addEventListener("click", () => shiftDay(1));
 
 /***********************
  * DUPLICATION JOUR PRÉCÉDENT
