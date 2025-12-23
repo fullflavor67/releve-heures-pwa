@@ -7,10 +7,15 @@ const dateTitle = document.getElementById("date");
 const morningRow = document.getElementById("morning");
 const afternoonRow = document.getElementById("afternoon");
 
-const m_start = document.getElementById("m_start");
-const m_end = document.getElementById("m_end");
-const a_start = document.getElementById("a_start");
-const a_end = document.getElementById("a_end");
+const m_start_h = document.getElementById("m_start_h");
+const m_start_m = document.getElementById("m_start_m");
+const m_end_h = document.getElementById("m_end_h");
+const m_end_m = document.getElementById("m_end_m");
+
+const a_start_h = document.getElementById("a_start_h");
+const a_start_m = document.getElementById("a_start_m");
+const a_end_h = document.getElementById("a_end_h");
+const a_end_m = document.getElementById("a_end_m");
 
 const m_decimal = document.getElementById("m_decimal");
 const a_decimal = document.getElementById("a_decimal");
@@ -29,27 +34,39 @@ dayPicker.value = currentDay;
 dateTitle.innerText = currentDay;
 
 /***********************
- * GENERATION PICKER HEURES
+ * GENERATION PICKER HEURES / MINUTES
  ***********************/
-function generateTimeOptions(selectElement) {
+function generateHourOptions(selectElement) {
   selectElement.innerHTML = "";
   for (let h = 0; h < 24; h++) {
-    for (let m = 0; m < 60; m += 5) {
-      const hh = h.toString().padStart(2, "0");
-      const mm = m.toString().padStart(2, "0");
-      const option = document.createElement("option");
-      option.value = `${hh}:${mm}`;
-      option.text = `${hh}:${mm}`;
-      selectElement.appendChild(option);
-    }
+    const option = document.createElement("option");
+    option.value = h.toString().padStart(2, "0");
+    option.text = h.toString().padStart(2, "0");
+    selectElement.appendChild(option);
   }
 }
 
-[m_start, m_end, a_start, a_end].forEach(generateTimeOptions);
+function generateMinuteOptions(selectElement) {
+  selectElement.innerHTML = "";
+  for (let m = 0; m < 60; m += 5) {
+    const option = document.createElement("option");
+    option.value = m.toString().padStart(2, "0");
+    option.text = m.toString().padStart(2, "0");
+    selectElement.appendChild(option);
+  }
+}
+
+// Appliquer à tous les pickers
+[m_start_h, m_end_h, a_start_h, a_end_h].forEach(generateHourOptions);
+[m_start_m, m_end_m, a_start_m, a_end_m].forEach(generateMinuteOptions);
 
 /***********************
  * OUTILS
  ***********************/
+function getTimeValue(hSelect, mSelect) {
+  return `${hSelect.value}:${mSelect.value}`;
+}
+
 function timeToDecimal(time) {
   if (!time) return "";
   const [h, m] = time.split(":").map(Number);
@@ -61,10 +78,10 @@ function timeToDecimal(time) {
  ***********************/
 function saveDay() {
   const data = {
-    m_start: m_start.value,
-    m_end: m_end.value,
-    a_start: a_start.value,
-    a_end: a_end.value
+    m_start: getTimeValue(m_start_h, m_start_m),
+    m_end: getTimeValue(m_end_h, m_end_m),
+    a_start: getTimeValue(a_start_h, a_start_m),
+    a_end: getTimeValue(a_end_h, a_end_m)
   };
   localStorage.setItem(currentDay, JSON.stringify(data));
   updateAll();
@@ -73,10 +90,17 @@ function saveDay() {
 
 function loadDay(date) {
   const data = JSON.parse(localStorage.getItem(date));
-  m_start.value = data?.m_start || "08:00";
-  m_end.value   = data?.m_end   || "12:00";
-  a_start.value = data?.a_start || "13:00";
-  a_end.value   = data?.a_end   || "17:00";
+
+  const mStart = data?.m_start || "08:00";
+  const mEnd = data?.m_end || "12:00";
+  const aStart = data?.a_start || "13:00";
+  const aEnd = data?.a_end || "17:00";
+
+  [m_start_h, m_start_m].forEach((s, i) => s.value = i === 0 ? mStart.split(":")[0] : mStart.split(":")[1]);
+  [m_end_h, m_end_m].forEach((s, i) => s.value = i === 0 ? mEnd.split(":")[0] : mEnd.split(":")[1]);
+  [a_start_h, a_start_m].forEach((s, i) => s.value = i === 0 ? aStart.split(":")[0] : aStart.split(":")[1]);
+  [a_end_h, a_end_m].forEach((s, i) => s.value = i === 0 ? aEnd.split(":")[0] : aEnd.split(":")[1]);
+
   updateAll();
   updateWeekView();
 }
@@ -84,10 +108,11 @@ function loadDay(date) {
 /***********************
  * MISE À JOUR AFFICHAGE
  ***********************/
-function updateRow(startSelect, endSelect, decimalSpan, row) {
-  if (startSelect.value && endSelect.value) {
-    decimalSpan.innerText =
-      `(${timeToDecimal(startSelect.value)} – ${timeToDecimal(endSelect.value)})`;
+function updateRow(startH, startM, endH, endM, decimalSpan, row) {
+  const start = getTimeValue(startH, startM);
+  const end = getTimeValue(endH, endM);
+  if (start && end) {
+    decimalSpan.innerText = `(${timeToDecimal(start)} – ${timeToDecimal(end)})`;
     row.className = "row complete";
   } else {
     decimalSpan.innerText = "";
@@ -96,8 +121,8 @@ function updateRow(startSelect, endSelect, decimalSpan, row) {
 }
 
 function updateAll() {
-  updateRow(m_start, m_end, m_decimal, morningRow);
-  updateRow(a_start, a_end, a_decimal, afternoonRow);
+  updateRow(m_start_h, m_start_m, m_end_h, m_end_m, m_decimal, morningRow);
+  updateRow(a_start_h, a_start_m, a_end_h, a_end_m, a_decimal, afternoonRow);
 }
 
 /***********************
@@ -105,9 +130,9 @@ function updateAll() {
  ***********************/
 function validateRow(rowId) {
   if (rowId === "morning") {
-    updateRow(m_start, m_end, m_decimal, morningRow);
+    updateRow(m_start_h, m_start_m, m_end_h, m_end_m, m_decimal, morningRow);
   } else if (rowId === "afternoon") {
-    updateRow(a_start, a_end, a_decimal, afternoonRow);
+    updateRow(a_start_h, a_start_m, a_end_h, a_end_m, a_decimal, afternoonRow);
   }
   saveDay();
 }
@@ -118,7 +143,7 @@ function validateRow(rowId) {
 function updateWeekView() {
   weekView.innerHTML = "";
   const baseDate = new Date(currentDay);
-  baseDate.setDate(baseDate.getDate() - baseDate.getDay()); // dimanche
+  baseDate.setDate(baseDate.getDate() - baseDate.getDay());
 
   for (let i = 0; i < 7; i++) {
     const d = new Date(baseDate);
@@ -127,16 +152,13 @@ function updateWeekView() {
     const data = JSON.parse(localStorage.getItem(dateStr)) || {};
 
     const mStart = data.m_start || "--:--";
-    const mEnd   = data.m_end   || "--:--";
+    const mEnd = data.m_end || "--:--";
     const aStart = data.a_start || "--:--";
-    const aEnd   = data.a_end   || "--:--";
+    const aEnd = data.a_end || "--:--";
 
-    const complete =
-      data.m_start && data.m_end && data.a_start && data.a_end
-        ? "✅"
-        : "❌";
-
+    const complete = data.m_start && data.m_end && data.a_start && data.a_end ? "✅" : "❌";
     const displayDate = dateStr.slice(5);
+
     const div = document.createElement("div");
     div.innerText = `${displayDate} ${complete} | Matin: ${mStart}→${mEnd} | Après-midi: ${aStart}→${aEnd}`;
     weekView.appendChild(div);
