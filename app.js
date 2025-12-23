@@ -85,7 +85,7 @@ function updateAll() {
 function updateWeekView() {
   weekView.innerHTML = "";
   const baseDate = new Date(currentDay);
-  baseDate.setDate(baseDate.getDate() - baseDate.getDay()); // début de semaine dimanche
+  baseDate.setDate(baseDate.getDate() - baseDate.getDay());
 
   for (let i = 0; i < 7; i++) {
     const d = new Date(baseDate);
@@ -103,7 +103,7 @@ function updateWeekView() {
         ? "✅"
         : "❌";
 
-    const displayDate = dateStr.slice(5); // MM-DD
+    const displayDate = dateStr.slice(5);
     const div = document.createElement("div");
     div.innerText = `${displayDate} ${complete} | Matin: ${mStart}→${mEnd} | Après-midi: ${aStart}→${aEnd}`;
     weekView.appendChild(div);
@@ -121,18 +121,22 @@ dayPicker.addEventListener("change", () => {
 
 /***********************
  * VALIDATION DES HEURES
- * Sauvegarde uniquement après "blur" ou "Enter"
+ * - Sauvegarde uniquement sur blur ou Enter
+ * - Pas d'auto-focus ni d'update en "input"
  ***********************/
 [m_start, m_end, a_start, a_end].forEach(input => {
-  input.addEventListener("blur", saveDay); // sauvegarde après quitter le champ
+  input.addEventListener("blur", () => {
+    saveDay();
+    updateAll(); // met à jour affichage décimal après validation
+  });
   input.addEventListener("keypress", e => {
     if (e.key === "Enter") {
       e.preventDefault();
       saveDay();
-      input.blur(); // quitte le champ
+      updateAll();
+      input.blur();
     }
   });
-  input.addEventListener("input", updateAll); // mise à jour affichage décimal
 });
 
 /***********************
