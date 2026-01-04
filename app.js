@@ -48,7 +48,7 @@ function generateHourOptions(selectElement) {
 
 function generateMinuteOptions(selectElement) {
   selectElement.innerHTML = "";
-  for (let m = 0; m < 60; m += 5) {  // ⚡ pas de 5 minutes
+  for (let m = 0; m < 60; m += 5) {  // pas de 5 minutes
     const option = document.createElement("option");
     option.value = m.toString().padStart(2, "0");
     option.text = m.toString().padStart(2, "0");
@@ -91,6 +91,7 @@ function saveDay() {
 function loadDay(date) {
   const data = JSON.parse(localStorage.getItem(date)) || {};
 
+  // ⚡ Valeurs par défaut si aucune donnée
   const mStart = data.m_start || "08:00";
   const mEnd = data.m_end || "12:00";
   const aStart = data.a_start || "13:30";
@@ -149,13 +150,13 @@ function updateWeekView() {
     const dateStr = d.toISOString().split("T")[0];
     const data = JSON.parse(localStorage.getItem(dateStr)) || {};
 
-    const mStart = data.m_start || "--:--";
-    const mEnd = data.m_end || "--:--";
-    const aStart = data.a_start || "--:--";
-    const aEnd = data.a_end || "--:--";
+    const mStart = data.m_start || "08:00";
+    const mEnd = data.m_end || "12:00";
+    const aStart = data.a_start || "13:30";
+    const aEnd = data.a_end || "17:15";
 
-    const mDecimal = (data.m_start && data.m_end) ? `(${timeToDecimal(mStart)} – ${timeToDecimal(mEnd)})` : "";
-    const aDecimal = (data.a_start && data.a_end) ? `(${timeToDecimal(aStart)} – ${timeToDecimal(aEnd)})` : "";
+    const mDecimal = (mStart && mEnd) ? `(${timeToDecimal(mStart)} – ${timeToDecimal(mEnd)})` : "";
+    const aDecimal = (aStart && aEnd) ? `(${timeToDecimal(aStart)} – ${timeToDecimal(aEnd)})` : "";
 
     const complete = data.m_start && data.m_end && data.a_start && data.a_end ? "✅" : "❌";
 
@@ -187,8 +188,8 @@ function updateWeekView() {
  * SÉLECTEUR DE JOUR
  ***********************/
 dayPicker.addEventListener("change", ()=>{
-  currentDay=dayPicker.value;
-  dateTitle.innerText=currentDay;
+  currentDay = dayPicker.value;
+  dateTitle.innerText = currentDay;
   loadDay(currentDay);
 });
 
