@@ -8,68 +8,11 @@
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
 
-<!-- iOS PWA -->
+<!-- iOS home screen -->
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Relevé d'heures">
 <meta name="theme-color" content="#4CAF50">
-
-<style>
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  margin: 10px;
-}
-
-.section {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 15px;
-}
-
-.section h3 {
-  margin-top: 0;
-}
-
-.time-block {
-  margin-bottom: 10px;
-}
-
-.time-line {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-label {
-  font-weight: bold;
-  margin-bottom: 4px;
-  display: block;
-}
-
-select {
-  font-size: 16px;
-  padding: 4px;
-}
-
-button {
-  padding: 6px 12px;
-  font-size: 16px;
-  margin-top: 4px;
-}
-
-.complete {
-  background-color: #d4ffd4;
-}
-
-.incomplete {
-  background-color: #ffd4d4;
-}
-
-#weekView div {
-  font-size: 14px;
-}
-</style>
 </head>
 
 <body>
@@ -82,7 +25,6 @@ button {
 <!-- MATIN -->
 <div id="morning" class="section incomplete">
   <h3>🌅 Matin</h3>
-
   <div class="time-block">
     <label>Début</label>
     <div class="time-line">
@@ -108,7 +50,6 @@ button {
 <!-- APRES-MIDI -->
 <div id="afternoon" class="section incomplete">
   <h3>🌇 Après-midi</h3>
-
   <div class="time-block">
     <label>Début</label>
     <div class="time-line">
@@ -135,10 +76,11 @@ button {
 <div id="weekView"></div>
 
 <script src="app.js"></script>
-
 <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js");
+  navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker installé ✅"))
+    .catch((err) => console.log("Erreur SW :", err));
 }
 </script>
 
