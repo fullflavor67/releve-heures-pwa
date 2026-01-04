@@ -48,7 +48,7 @@ function generateHourOptions(selectElement) {
 
 function generateMinuteOptions(selectElement) {
   selectElement.innerHTML = "";
-  for (let m = 0; m < 60; m++) {
+  for (let m = 0; m < 60; m += 5) {  // ⚡ pas de 5 minutes
     const option = document.createElement("option");
     option.value = m.toString().padStart(2, "0");
     option.text = m.toString().padStart(2, "0");
@@ -56,6 +56,7 @@ function generateMinuteOptions(selectElement) {
   }
 }
 
+// Appliquer à tous les pickers
 [m_start_h, m_end_h, a_start_h, a_end_h].forEach(generateHourOptions);
 [m_start_m, m_end_m, a_start_m, a_end_m].forEach(generateMinuteOptions);
 
@@ -92,8 +93,8 @@ function loadDay(date) {
 
   const mStart = data.m_start || "08:00";
   const mEnd = data.m_end || "12:00";
-  const aStart = data.a_start || "13:00";
-  const aEnd = data.a_end || "17:00";
+  const aStart = data.a_start || "13:30";
+  const aEnd = data.a_end || "17:15";
 
   [m_start_h, m_start_m].forEach((s,i)=> s.value = i===0? mStart.split(":")[0]: mStart.split(":")[1]);
   [m_end_h, m_end_m].forEach((s,i)=> s.value = i===0? mEnd.split(":")[0]: mEnd.split(":")[1]);
@@ -134,7 +135,7 @@ function validateRow(rowId) {
 }
 
 /***********************
- * VUE SEMAINE AMELIOREE
+ * VUE SEMAINE
  ***********************/
 function updateWeekView() {
   weekView.innerHTML = "";
