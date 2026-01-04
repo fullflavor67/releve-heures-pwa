@@ -48,7 +48,7 @@ function generateHourOptions(selectElement) {
 
 function generateMinuteOptions(selectElement) {
   selectElement.innerHTML = "";
-  for (let m = 0; m < 60; m += 5) {
+  for (let m = 0; m < 60; m++) {
     const option = document.createElement("option");
     option.value = m.toString().padStart(2, "0");
     option.text = m.toString().padStart(2, "0");
@@ -95,10 +95,10 @@ function loadDay(date) {
   const aStart = data.a_start || "13:00";
   const aEnd = data.a_end || "17:00";
 
-  [m_start_h, m_start_m].forEach((s, i) => s.value = i===0? mStart.split(":")[0]: mStart.split(":")[1]);
-  [m_end_h, m_end_m].forEach((s, i) => s.value = i===0? mEnd.split(":")[0]: mEnd.split(":")[1]);
-  [a_start_h, a_start_m].forEach((s, i) => s.value = i===0? aStart.split(":")[0]: aStart.split(":")[1]);
-  [a_end_h, a_end_m].forEach((s, i) => s.value = i===0? aEnd.split(":")[0]: aEnd.split(":")[1]);
+  [m_start_h, m_start_m].forEach((s,i)=> s.value = i===0? mStart.split(":")[0]: mStart.split(":")[1]);
+  [m_end_h, m_end_m].forEach((s,i)=> s.value = i===0? mEnd.split(":")[0]: mEnd.split(":")[1]);
+  [a_start_h, a_start_m].forEach((s,i)=> s.value = i===0? aStart.split(":")[0]: aStart.split(":")[1]);
+  [a_end_h, a_end_m].forEach((s,i)=> s.value = i===0? aEnd.split(":")[0]: aEnd.split(":")[1]);
 
   updateAll();
   updateWeekView();
@@ -134,19 +134,37 @@ function validateRow(rowId) {
 }
 
 /***********************
- * HEURE ACTUELLE (fix iOS)
+ * HEURE ACTUELLE (exacte, iOS/Safari fix)
  ***********************/
 function fillCurrentTime(fieldPrefix) {
   const now = new Date();
-  const h = now.getHours().toString().padStart(2, '0');
-  const m = Math.floor(now.getMinutes()/5)*5;
-  const mStr = m.toString().padStart(2,'0');
+  const h = now.getHours().toString().padStart(2,'0');
+  const m = now.getMinutes().toString().padStart(2,'0');
 
   const hSelect = document.getElementById(fieldPrefix + "_h");
   const mSelect = document.getElementById(fieldPrefix + "_m");
 
+  // Ajouter option si nécessaire (Safari iOS)
+  if (!Array.from(hSelect.options).some(opt=>opt.value===h)){
+    const opt = document.createElement("option");
+    opt.value = h;
+    opt.text = h;
+    hSelect.appendChild(opt);
+  }
+  if (!Array.from(mSelect.options).some(opt=>opt.value===m)){
+    const opt = document.createElement("option");
+    opt.value = m;
+    opt.text = m;
+    mSelect.appendChild(opt);
+  }
+
+  // Sélectionner les valeurs
   hSelect.value = h;
-  mSelect.value = mStr;
+  mSelect.value = m;
+
+  // Focus pour iOS
+  hSelect.focus();
+  mSelect.focus();
 }
 
 /***********************
@@ -165,8 +183,8 @@ function updateWeekView() {
   const baseDate = new Date(currentDay);
   baseDate.setDate(baseDate.getDate() - baseDate.getDay());
 
-  for (let i=0; i<7; i++) {
-    const d = new Date(baseDate);
+  for (let i=0;i<7;i++){
+    const d=new Date(baseDate);
     d.setDate(baseDate.getDate()+i);
     const dateStr = d.toISOString().split("T")[0];
     const data = JSON.parse(localStorage.getItem(dateStr)) || {};
@@ -176,10 +194,10 @@ function updateWeekView() {
     const aStart = data.a_start || "--:--";
     const aEnd = data.a_end || "--:--";
 
-    const complete = data.m_start && data.m_end && data.a_start && data.a_end ? "✅" : "❌";
+    const complete = data.m_start && data.m_end && data.a_start && data.a_end ? "✅":"❌";
     const displayDate = dateStr.slice(5);
 
-    const div = document.createElement("div");
+    const div=document.createElement("div");
     div.innerText = `${displayDate} ${complete} | Matin: ${mStart}→${mEnd} | Après-midi: ${aStart}→${aEnd}`;
     weekView.appendChild(div);
   }
@@ -188,9 +206,9 @@ function updateWeekView() {
 /***********************
  * SÉLECTEUR DE JOUR
  ***********************/
-dayPicker.addEventListener("change", () => {
-  currentDay = dayPicker.value;
-  dateTitle.innerText = currentDay;
+dayPicker.addEventListener("change", ()=>{
+  currentDay=dayPicker.value;
+  dateTitle.innerText=currentDay;
   loadDay(currentDay);
 });
 
