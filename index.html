@@ -1,88 +1,199 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Relevé d'heures</title>
+/***********************
+ * INITIALISATION
+ ***********************/
+const dayPicker = document.getElementById("dayPicker");
+const dateTitle = document.getElementById("date");
 
-<link rel="stylesheet" href="style.css">
-<link rel="manifest" href="manifest.json">
+const morningRow = document.getElementById("morning");
+const afternoonRow = document.getElementById("afternoon");
 
-<!-- iOS home screen -->
-<link rel="apple-touch-icon" href="icons/icon-180.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Relevé d'heures">
-<meta name="theme-color" content="#4CAF50">
-</head>
+const m_start_h = document.getElementById("m_start_h");
+const m_start_m = document.getElementById("m_start_m");
+const m_end_h = document.getElementById("m_end_h");
+const m_end_m = document.getElementById("m_end_m");
 
-<body>
+const a_start_h = document.getElementById("a_start_h");
+const a_start_m = document.getElementById("a_start_m");
+const a_end_h = document.getElementById("a_end_h");
+const a_end_m = document.getElementById("a_end_m");
 
-<h2 id="date"></h2>
+const m_decimal = document.getElementById("m_decimal");
+const a_decimal = document.getElementById("a_decimal");
 
-<label for="dayPicker">Choisir le jour :</label>
-<input type="date" id="dayPicker">
+const weekView = document.getElementById("weekView");
 
-<!-- MATIN -->
-<div id="morning" class="section incomplete">
-  <h3>🌅 Matin</h3>
-  <div class="time-block">
-    <label>Début</label>
-    <div class="time-line">
-      <select id="m_start_h"></select>
-      <span>:</span>
-      <select id="m_start_m"></select>
-    </div>
-  </div>
-
-  <div class="time-block">
-    <label>Fin</label>
-    <div class="time-line">
-      <select id="m_end_h"></select>
-      <span>:</span>
-      <select id="m_end_m"></select>
-    </div>
-  </div>
-
-  <div id="m_decimal"></div>
-  <button type="button" onclick="validateRow('morning')">Valider matin</button>
-</div>
-
-<!-- APRES-MIDI -->
-<div id="afternoon" class="section incomplete">
-  <h3>🌇 Après-midi</h3>
-  <div class="time-block">
-    <label>Début</label>
-    <div class="time-line">
-      <select id="a_start_h"></select>
-      <span>:</span>
-      <select id="a_start_m"></select>
-    </div>
-  </div>
-
-  <div class="time-block">
-    <label>Fin</label>
-    <div class="time-line">
-      <select id="a_end_h"></select>
-      <span>:</span>
-      <select id="a_end_m"></select>
-    </div>
-  </div>
-
-  <div id="a_decimal"></div>
-  <button type="button" onclick="validateRow('afternoon')">Valider après-midi</button>
-</div>
-
-<h3>📅 Vue semaine</h3>
-<div id="weekView"></div>
-
-<script src="app.js"></script>
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js")
-    .then(() => console.log("Service Worker installé ✅"))
-    .catch((err) => console.log("Erreur SW :", err));
+/***********************
+ * DATE COURANTE
+ ***********************/
+function getToday() {
+  return new Date().toISOString().split("T")[0];
 }
-</script>
 
-</body>
-</html>
+let currentDay = getToday();
+dayPicker.value = currentDay;
+dateTitle.innerText = currentDay;
+
+/***********************
+ * GENERATION PICKER HEURES / MINUTES
+ ***********************/
+function generateHourOptions(selectElement) {
+  selectElement.innerHTML = "";
+  for (let h = 0; h < 24; h++) {
+    const option = document.createElement("option");
+    option.value = h.toString().padStart(2, "0");
+    option.text = h.toString().padStart(2, "0");
+    selectElement.appendChild(option);
+  }
+}
+
+function generateMinuteOptions(selectElement) {
+  selectElement.innerHTML = "";
+  for (let m = 0; m < 60; m += 5) {  // pas de 5 minutes
+    const option = document.createElement("option");
+    option.value = m.toString().padStart(2, "0");
+    option.text = m.toString().padStart(2, "0");
+    selectElement.appendChild(option);
+  }
+}
+
+// Appliquer à tous les pickers
+[m_start_h, m_end_h, a_start_h, a_end_h].forEach(generateHourOptions);
+[m_start_m, m_end_m, a_start_m, a_end_m].forEach(generateMinuteOptions);
+
+/***********************
+ * OUTILS
+ ***********************/
+function getTimeValue(hSelect, mSelect) {
+  return `${hSelect.value}:${mSelect.value}`;
+}
+
+function timeToDecimal(time) {
+  if (!time) return "";
+  const [h, m] = time.split(":").map(Number);
+  return (h + m / 60).toFixed(2);
+}
+
+/***********************
+ * SAUVEGARDE / CHARGEMENT
+ ***********************/
+function saveDay() {
+  const data = {
+    m_start: getTimeValue(m_start_h, m_start_m),
+    m_end: getTimeValue(m_end_h, m_end_m),
+    a_start: getTimeValue(a_start_h, a_start_m),
+    a_end: getTimeValue(a_end_h, a_end_m)
+  };
+  localStorage.setItem(currentDay, JSON.stringify(data));
+  updateAll();
+  updateWeekView();
+}
+
+function loadDay(date) {
+  const data = JSON.parse(localStorage.getItem(date)) || {};
+
+  // ⚡ Valeurs par défaut si aucune donnée
+  const mStart = data.m_start || "08:00";
+  const mEnd = data.m_end || "12:00";
+  const aStart = data.a_start || "13:30";
+  const aEnd = data.a_end || "17:15";
+
+  [m_start_h, m_start_m].forEach((s,i)=> s.value = i===0? mStart.split(":")[0]: mStart.split(":")[1]);
+  [m_end_h, m_end_m].forEach((s,i)=> s.value = i===0? mEnd.split(":")[0]: mEnd.split(":")[1]);
+  [a_start_h, a_start_m].forEach((s,i)=> s.value = i===0? aStart.split(":")[0]: aStart.split(":")[1]);
+  [a_end_h, a_end_m].forEach((s,i)=> s.value = i===0? aEnd.split(":")[0]: aEnd.split(":")[1]);
+
+  updateAll();
+  updateWeekView();
+}
+
+/***********************
+ * AFFICHAGE
+ ***********************/
+function updateRow(startH, startM, endH, endM, decimalSpan, row) {
+  const start = getTimeValue(startH, startM);
+  const end = getTimeValue(endH, endM);
+  if (start && end) {
+    decimalSpan.innerText = `(${timeToDecimal(start)} – ${timeToDecimal(end)})`;
+    row.className = "section complete";
+  } else {
+    decimalSpan.innerText = "";
+    row.className = "section incomplete";
+  }
+}
+
+function updateAll() {
+  updateRow(m_start_h, m_start_m, m_end_h, m_end_m, m_decimal, morningRow);
+  updateRow(a_start_h, a_start_m, a_end_h, a_end_m, a_decimal, afternoonRow);
+}
+
+/***********************
+ * VALIDATION
+ ***********************/
+function validateRow(rowId) {
+  if (rowId === "morning") updateRow(m_start_h, m_start_m, m_end_h, m_end_m, m_decimal, morningRow);
+  if (rowId === "afternoon") updateRow(a_start_h, a_start_m, a_end_h, a_end_m, a_decimal, afternoonRow);
+  saveDay();
+}
+
+/***********************
+ * VUE SEMAINE
+ ***********************/
+function updateWeekView() {
+  weekView.innerHTML = "";
+
+  const baseDate = new Date(currentDay);
+  baseDate.setDate(baseDate.getDate() - baseDate.getDay());
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(baseDate);
+    d.setDate(baseDate.getDate() + i);
+    const dateStr = d.toISOString().split("T")[0];
+    const data = JSON.parse(localStorage.getItem(dateStr)) || {};
+
+    const mStart = data.m_start || "08:00";
+    const mEnd = data.m_end || "12:00";
+    const aStart = data.a_start || "13:30";
+    const aEnd = data.a_end || "17:15";
+
+    const mDecimal = (mStart && mEnd) ? `(${timeToDecimal(mStart)} – ${timeToDecimal(mEnd)})` : "";
+    const aDecimal = (aStart && aEnd) ? `(${timeToDecimal(aStart)} – ${timeToDecimal(aEnd)})` : "";
+
+    const complete = data.m_start && data.m_end && data.a_start && data.a_end ? "✅" : "❌";
+
+    const dayDiv = document.createElement("div");
+    dayDiv.style.border = "1px solid #ccc";
+    dayDiv.style.borderRadius = "6px";
+    dayDiv.style.padding = "6px";
+    dayDiv.style.marginBottom = "8px";
+
+    const dayTitle = document.createElement("strong");
+    dayTitle.innerText = `${dateStr} ${complete}`;
+    dayDiv.appendChild(dayTitle);
+
+    const morningDiv = document.createElement("div");
+    morningDiv.innerHTML = `<em>Matin:</em> ${mStart} → ${mEnd}<br><small>${mDecimal}</small>`;
+    morningDiv.style.marginLeft = "10px";
+    dayDiv.appendChild(morningDiv);
+
+    const afternoonDiv = document.createElement("div");
+    afternoonDiv.innerHTML = `<em>Après-midi:</em> ${aStart} → ${aEnd}<br><small>${aDecimal}</small>`;
+    afternoonDiv.style.marginLeft = "10px";
+    dayDiv.appendChild(afternoonDiv);
+
+    weekView.appendChild(dayDiv);
+  }
+}
+
+/***********************
+ * SÉLECTEUR DE JOUR
+ ***********************/
+dayPicker.addEventListener("change", ()=>{
+  currentDay = dayPicker.value;
+  dateTitle.innerText = currentDay;
+  loadDay(currentDay);
+});
+
+/***********************
+ * CHARGEMENT INITIAL
+ ***********************/
+loadDay(currentDay);
