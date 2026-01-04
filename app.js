@@ -56,7 +56,6 @@ function generateMinuteOptions(selectElement) {
   }
 }
 
-// Appliquer à tous les pickers
 [m_start_h, m_end_h, a_start_h, a_end_h].forEach(generateHourOptions);
 [m_start_m, m_end_m, a_start_m, a_end_m].forEach(generateMinuteOptions);
 
@@ -89,34 +88,34 @@ function saveDay() {
 }
 
 function loadDay(date) {
-  const data = JSON.parse(localStorage.getItem(date));
+  const data = JSON.parse(localStorage.getItem(date)) || {};
 
-  const mStart = data?.m_start || "08:00";
-  const mEnd = data?.m_end || "12:00";
-  const aStart = data?.a_start || "13:00";
-  const aEnd = data?.a_end || "17:00";
+  const mStart = data.m_start || "08:00";
+  const mEnd = data.m_end || "12:00";
+  const aStart = data.a_start || "13:00";
+  const aEnd = data.a_end || "17:00";
 
-  [m_start_h, m_start_m].forEach((s, i) => s.value = i === 0 ? mStart.split(":")[0] : mStart.split(":")[1]);
-  [m_end_h, m_end_m].forEach((s, i) => s.value = i === 0 ? mEnd.split(":")[0] : mEnd.split(":")[1]);
-  [a_start_h, a_start_m].forEach((s, i) => s.value = i === 0 ? aStart.split(":")[0] : aStart.split(":")[1]);
-  [a_end_h, a_end_m].forEach((s, i) => s.value = i === 0 ? aEnd.split(":")[0] : aEnd.split(":")[1]);
+  [m_start_h, m_start_m].forEach((s, i) => s.value = i===0? mStart.split(":")[0]: mStart.split(":")[1]);
+  [m_end_h, m_end_m].forEach((s, i) => s.value = i===0? mEnd.split(":")[0]: mEnd.split(":")[1]);
+  [a_start_h, a_start_m].forEach((s, i) => s.value = i===0? aStart.split(":")[0]: aStart.split(":")[1]);
+  [a_end_h, a_end_m].forEach((s, i) => s.value = i===0? aEnd.split(":")[0]: aEnd.split(":")[1]);
 
   updateAll();
   updateWeekView();
 }
 
 /***********************
- * MISE À JOUR AFFICHAGE
+ * AFFICHAGE
  ***********************/
 function updateRow(startH, startM, endH, endM, decimalSpan, row) {
   const start = getTimeValue(startH, startM);
   const end = getTimeValue(endH, endM);
   if (start && end) {
     decimalSpan.innerText = `(${timeToDecimal(start)} – ${timeToDecimal(end)})`;
-    row.className = "row complete";
+    row.className = "section complete";
   } else {
     decimalSpan.innerText = "";
-    row.className = "row incomplete";
+    row.className = "section incomplete";
   }
 }
 
@@ -126,15 +125,28 @@ function updateAll() {
 }
 
 /***********************
- * VALIDATION LIGNE
+ * VALIDATION
  ***********************/
 function validateRow(rowId) {
-  if (rowId === "morning") {
-    updateRow(m_start_h, m_start_m, m_end_h, m_end_m, m_decimal, morningRow);
-  } else if (rowId === "afternoon") {
-    updateRow(a_start_h, a_start_m, a_end_h, a_end_m, a_decimal, afternoonRow);
-  }
+  if (rowId === "morning") updateRow(m_start_h, m_start_m, m_end_h, m_end_m, m_decimal, morningRow);
+  if (rowId === "afternoon") updateRow(a_start_h, a_start_m, a_end_h, a_end_m, a_decimal, afternoonRow);
   saveDay();
+}
+
+/***********************
+ * HEURE ACTUELLE
+ ***********************/
+function fillCurrentTime(fieldPrefix) {
+  const now = new Date();
+  const h = now.getHours().toString().padStart(2, '0');
+  const m = Math.floor(now.getMinutes()/5)*5;
+  const mStr = m.toString().padStart(2,'0');
+
+  const hSelect = document.getElementById(fieldPrefix + "_h");
+  const mSelect = document.getElementById(fieldPrefix + "_m");
+
+  hSelect.value = h;
+  mSelect.value = mStr;
 }
 
 /***********************
@@ -145,9 +157,9 @@ function updateWeekView() {
   const baseDate = new Date(currentDay);
   baseDate.setDate(baseDate.getDate() - baseDate.getDay());
 
-  for (let i = 0; i < 7; i++) {
+  for (let i=0; i<7; i++) {
     const d = new Date(baseDate);
-    d.setDate(baseDate.getDate() + i);
+    d.setDate(baseDate.getDate()+i);
     const dateStr = d.toISOString().split("T")[0];
     const data = JSON.parse(localStorage.getItem(dateStr)) || {};
 
