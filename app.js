@@ -134,7 +134,7 @@ function validateRow(rowId) {
 }
 
 /***********************
- * HEURE ACTUELLE
+ * HEURE ACTUELLE (fix iOS)
  ***********************/
 function fillCurrentTime(fieldPrefix) {
   const now = new Date();
@@ -148,6 +148,14 @@ function fillCurrentTime(fieldPrefix) {
   hSelect.value = h;
   mSelect.value = mStr;
 }
+
+/***********************
+ * Attacher boutons Maintenant
+ ***********************/
+document.getElementById("m_start_now").addEventListener("click", () => fillCurrentTime("m_start"));
+document.getElementById("m_end_now").addEventListener("click", () => fillCurrentTime("m_end"));
+document.getElementById("a_start_now").addEventListener("click", () => fillCurrentTime("a_start"));
+document.getElementById("a_end_now").addEventListener("click", () => fillCurrentTime("a_end"));
 
 /***********************
  * VUE SEMAINE

@@ -55,6 +55,7 @@ select {
 button {
   padding: 6px 12px;
   font-size: 16px;
+  margin-top: 4px;
 }
 
 .complete {
@@ -84,8 +85,8 @@ button {
       <select id="m_start_h"></select>
       <span>:</span>
       <select id="m_start_m"></select>
-      <button onclick="fillCurrentTime('m_start')">⏱️ Maintenant</button>
     </div>
+    <button type="button" id="m_start_now">⏱️ Maintenant</button>
   </div>
 
   <div class="time-block">
@@ -94,8 +95,8 @@ button {
       <select id="m_end_h"></select>
       <span>:</span>
       <select id="m_end_m"></select>
-      <button onclick="fillCurrentTime('m_end')">⏱️ Maintenant</button>
     </div>
+    <button type="button" id="m_end_now">⏱️ Maintenant</button>
   </div>
 
   <div id="m_decimal"></div>
@@ -112,8 +113,8 @@ button {
       <select id="a_start_h"></select>
       <span>:</span>
       <select id="a_start_m"></select>
-      <button onclick="fillCurrentTime('a_start')">⏱️ Maintenant</button>
     </div>
+    <button type="button" id="a_start_now">⏱️ Maintenant</button>
   </div>
 
   <div class="time-block">
@@ -122,8 +123,8 @@ button {
       <select id="a_end_h"></select>
       <span>:</span>
       <select id="a_end_m"></select>
-      <button onclick="fillCurrentTime('a_end')">⏱️ Maintenant</button>
     </div>
+    <button type="button" id="a_end_now">⏱️ Maintenant</button>
   </div>
 
   <div id="a_decimal"></div>
