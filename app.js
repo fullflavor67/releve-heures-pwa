@@ -134,48 +134,6 @@ function validateRow(rowId) {
 }
 
 /***********************
- * HEURE ACTUELLE (exacte, iOS/Safari fix)
- ***********************/
-function fillCurrentTime(fieldPrefix) {
-  const now = new Date();
-  const h = now.getHours().toString().padStart(2,'0');
-  const m = now.getMinutes().toString().padStart(2,'0');
-
-  const hSelect = document.getElementById(fieldPrefix + "_h");
-  const mSelect = document.getElementById(fieldPrefix + "_m");
-
-  // Ajouter option si nécessaire (Safari iOS)
-  if (!Array.from(hSelect.options).some(opt=>opt.value===h)){
-    const opt = document.createElement("option");
-    opt.value = h;
-    opt.text = h;
-    hSelect.appendChild(opt);
-  }
-  if (!Array.from(mSelect.options).some(opt=>opt.value===m)){
-    const opt = document.createElement("option");
-    opt.value = m;
-    opt.text = m;
-    mSelect.appendChild(opt);
-  }
-
-  // Sélectionner les valeurs
-  hSelect.value = h;
-  mSelect.value = m;
-
-  // Focus pour iOS
-  hSelect.focus();
-  mSelect.focus();
-}
-
-/***********************
- * Attacher boutons Maintenant
- ***********************/
-document.getElementById("m_start_now").addEventListener("click", () => fillCurrentTime("m_start"));
-document.getElementById("m_end_now").addEventListener("click", () => fillCurrentTime("m_end"));
-document.getElementById("a_start_now").addEventListener("click", () => fillCurrentTime("a_start"));
-document.getElementById("a_end_now").addEventListener("click", () => fillCurrentTime("a_end"));
-
-/***********************
  * VUE SEMAINE
  ***********************/
 function updateWeekView() {
