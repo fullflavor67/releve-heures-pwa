@@ -1,62 +1,54 @@
 body {
-  font-family: system-ui, -apple-system, sans-serif;
-  padding: 16px;
-  background: #fff;
-  color: #000;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 10px;
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    background: #121212;
-    color: #fff;
-  }
+.section {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 15px;
 }
 
-.row {
+.section h3 {
+  margin-top: 0;
+}
+
+.time-block {
+  margin-bottom: 10px;
+}
+
+.time-line {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 12px;
 }
 
-.label {
-  width: 90px;
-  font-weight: 600;
+label {
+  font-weight: bold;
+  margin-bottom: 4px;
+  display: block;
 }
 
-input[type="time"] {
+select {
   font-size: 16px;
-}
-
-.decimal {
-  margin-left: auto;
-  font-size: 14px;
-  opacity: 0.7;
-}
-
-.complete {
-  border-left: 4px solid green;
-  padding-left: 6px;
-}
-
-.incomplete {
-  border-left: 4px solid red;
-  padding-left: 6px;
+  padding: 4px;
 }
 
 button {
-  margin-top: 10px;
-  width: 100%;
-  padding: 8px;
+  padding: 6px 12px;
+  font-size: 16px;
+  margin-top: 4px;
 }
 
-.nav-days {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
+.complete {
+  background-color: #d4ffd4;
 }
 
-.nav-days button {
-  flex: 1;
+.incomplete {
+  background-color: #ffd4d4;
 }
 
+#weekView div {
+  font-size: 14px;
+}
