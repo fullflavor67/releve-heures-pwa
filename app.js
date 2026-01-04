@@ -134,16 +134,17 @@ function validateRow(rowId) {
 }
 
 /***********************
- * VUE SEMAINE
+ * VUE SEMAINE AMELIOREE
  ***********************/
 function updateWeekView() {
   weekView.innerHTML = "";
+
   const baseDate = new Date(currentDay);
   baseDate.setDate(baseDate.getDate() - baseDate.getDay());
 
-  for (let i=0;i<7;i++){
-    const d=new Date(baseDate);
-    d.setDate(baseDate.getDate()+i);
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(baseDate);
+    d.setDate(baseDate.getDate() + i);
     const dateStr = d.toISOString().split("T")[0];
     const data = JSON.parse(localStorage.getItem(dateStr)) || {};
 
@@ -152,12 +153,32 @@ function updateWeekView() {
     const aStart = data.a_start || "--:--";
     const aEnd = data.a_end || "--:--";
 
-    const complete = data.m_start && data.m_end && data.a_start && data.a_end ? "✅":"❌";
-    const displayDate = dateStr.slice(5);
+    const mDecimal = (data.m_start && data.m_end) ? `(${timeToDecimal(mStart)} – ${timeToDecimal(mEnd)})` : "";
+    const aDecimal = (data.a_start && data.a_end) ? `(${timeToDecimal(aStart)} – ${timeToDecimal(aEnd)})` : "";
 
-    const div=document.createElement("div");
-    div.innerText = `${displayDate} ${complete} | Matin: ${mStart}→${mEnd} | Après-midi: ${aStart}→${aEnd}`;
-    weekView.appendChild(div);
+    const complete = data.m_start && data.m_end && data.a_start && data.a_end ? "✅" : "❌";
+
+    const dayDiv = document.createElement("div");
+    dayDiv.style.border = "1px solid #ccc";
+    dayDiv.style.borderRadius = "6px";
+    dayDiv.style.padding = "6px";
+    dayDiv.style.marginBottom = "8px";
+
+    const dayTitle = document.createElement("strong");
+    dayTitle.innerText = `${dateStr} ${complete}`;
+    dayDiv.appendChild(dayTitle);
+
+    const morningDiv = document.createElement("div");
+    morningDiv.innerHTML = `<em>Matin:</em> ${mStart} → ${mEnd}<br><small>${mDecimal}</small>`;
+    morningDiv.style.marginLeft = "10px";
+    dayDiv.appendChild(morningDiv);
+
+    const afternoonDiv = document.createElement("div");
+    afternoonDiv.innerHTML = `<em>Après-midi:</em> ${aStart} → ${aEnd}<br><small>${aDecimal}</small>`;
+    afternoonDiv.style.marginLeft = "10px";
+    dayDiv.appendChild(afternoonDiv);
+
+    weekView.appendChild(dayDiv);
   }
 }
 
